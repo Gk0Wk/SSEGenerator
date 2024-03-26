@@ -1,8 +1,8 @@
 # SSE Generator
 
-[中文文档](https://github.com/Gk0Wk/SSEGenerator/blob/main/README_zh.md)
-
 `sse-generator` is a lightweight Server-Sent Events (SSE) request library designed to provide an easy way for asynchronously invoking realtime data streams on the client side.
+
+[中文文档](https://github.com/Gk0Wk/SSEGenerator/blob/main/README_zh.md)
 
 ```typescript
 for await (const { data, id, lastId } of sse({ ... })) {
