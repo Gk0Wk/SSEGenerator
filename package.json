@@ -1,6 +1,6 @@
 {
-  "name": "@sttot/sse-generator",
-  "version": "0.1.0",
+  "name": "sse-generator",
+  "version": "0.0.1",
   "types": "./dist/types/index.d.ts",
   "main": "./dist/lib/index.js",
   "module": "./dist/es/index.js",
@@ -29,17 +29,16 @@
     "node_modules/",
     "dist/"
   ],
-  "dependencies": {},
-  "peerDependencies": {},
   "devDependencies": {
-    "@modern-js/module-tools": "2.48.3",
     "@modern-js/eslint-config": "2.48.3",
-    "typescript": "~5.0.4",
+    "@modern-js/module-tools": "2.48.3",
     "@types/node": "~16.11.7",
-    "rimraf": "~3.0.2",
+    "husky": "~8.0.1",
     "lint-staged": "~13.1.0",
     "prettier": "~2.8.1",
-    "husky": "~8.0.1"
+    "rimraf": "~3.0.2",
+    "typescript": "~5.0.4",
+    "sse.js": "^2.4.1"
   },
   "sideEffects": [],
   "publishConfig": {
