@@ -67,6 +67,25 @@ async function test() {
 }
 ```
 
+Otherwise, you can use the `getXMLHTTPRequest` parameter to get the `XMLHTTPRequest` object to implement more custom features, such as terminating a request:
+
+```javascript
+import { sse } from 'sse-generator';
+
+async function test(getTerminate) {
+  for await (const { data } of sse({
+    getXMLHTTPRequest: xhr => {
+      getTerminate(() => xhr.abort());
+    },
+  })) {
+    console.log(data);
+  }
+}
+
+// Terminate the request after 3 seconds
+test(terminate => setTimeout(terminate, 3000));
+```
+
 ## API Interface
 
 The table below lists the main interface parameters, parsing, and usage of the `sse` function.

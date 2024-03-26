@@ -1,5 +1,11 @@
 # sse-generator
 
+## 0.0.4
+
+### Patch Changes
+
+- Update readme
+
 ## 0.0.3
 
 ### Patch Changes
