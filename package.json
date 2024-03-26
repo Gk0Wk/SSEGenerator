@@ -4,6 +4,13 @@
   "types": "./dist/types/index.d.ts",
   "main": "./dist/lib/index.js",
   "module": "./dist/es/index.js",
+  "repository": {
+    "type ": "git",
+    "url": "https://github.com/Gk0Wk/SSEGenerator"
+  },
+  "bugs": {
+    "url": "https://github.com/Gk0Wk/SSEGenerator/issues"
+  },
   "scripts": {
     "prepare": "modern build && husky install",
     "dev": "modern dev",
