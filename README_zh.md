@@ -83,21 +83,58 @@ async function test(getTerminate) {
 test(terminate => setTimeout(terminate, 3000));
 ```
 
+sse 默认只监听了默认的 `message` 事件，Server-Send Event 还支持[自定义的其他事件](https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events)，以 Claude API 为例：
+
+```
+event: message_start
+data: {"type": "message_start", "message": {"id": "msg_1nZdL29xx5MUA1yADyHTEsnR8uuvGzszyY", "type": "message", "role": "assistant", "content": [], "model": "claude-3-opus-20240229", "stop_reason": null, "stop_sequence": null, "usage": {"input_tokens": 25, "output_tokens": 1}}}
+
+event: content_block_start
+data: {"type": "content_block_start", "index": 0, "content_block": {"type": "text", "text": ""}}
+
+event: ping
+data: {"type": "ping"}
+
+event: content_block_delta
+data: {"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": "Hello"}}
+
+event: content_block_delta
+data: {"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": "!"}}
+
+event: content_block_stop
+data: {"type": "content_block_stop", "index": 0}
+
+event: message_delta
+data: {"type": "message_delta", "delta": {"stop_reason": "end_turn", "stop_sequence":null, "usage":{"output_tokens": 15}}}
+
+event: message_stop
+data: {"type": "message_stop"}
+```
+
+此时我们需要指定监听额外的事件：
+
+```typescript
+for await (const { event, data } of sse({ listen: ['content_block_delta', ...], ... })) { ... }
+```
+
+`event` 会指明当前事件的名称。
+
 ## API 接口
 
 以下表格列出了 `sse` 函数的主要接口参数、解析和使用方式。
 
-| 参数                | 类型       | 描述                                               |
-| ------------------- | ---------- | -------------------------------------------------- |
-| `baseURL`           | `string`   | 基础 URL，所有请求会基于这个 URL 进行              |
-| `url`               | `string`   | 请求的 URL，若 `baseURL` 存在，则此 URL 为相对路径 |
-| `data`              | `any`      | 请求的数据，非字符串会被 JSON 序列化               |
-| `headers`           | `object`   | 自定义请求头                                       |
-| `method`            | `string`   | 请求方法，默认为 `GET`，`data` 非空时为 `POST`     |
-| `withCredentials`   | `boolean`  | 跨域请求是否携带凭证                               |
-| `debug`             | `boolean`  | 是否开启调试模式，将信息打印至控制台               |
-| `getXMLHTTPRequest` | `function` | 连接后调用，用于获取 `XMLHTTPRequest` 对象         |
-| `onError`           | `function` | 错误回调，发生错误时调用                           |
+| 参数                | 类型                | 描述                                               |
+| ------------------- | ------------------- | -------------------------------------------------- |
+| `baseURL`           | `string`            | 基础 URL，所有请求会基于这个 URL 进行              |
+| `url`               | `string`            | 请求的 URL，若 `baseURL` 存在，则此 URL 为相对路径 |
+| `data`              | `any`               | 请求的数据，非字符串会被 JSON 序列化               |
+| `headers`           | `object`            | 自定义请求头                                       |
+| `method`            | `string`            | 请求方法，默认为 `GET`，`data` 非空时为 `POST`     |
+| `withCredentials`   | `boolean`           | 跨域请求是否携带凭证                               |
+| `debug`             | `boolean`           | 是否开启调试模式，将信息打印至控制台               |
+| `getXMLHTTPRequest` | `function`          | 连接后调用，用于获取 `XMLHTTPRequest` 对象         |
+| `onError`           | `function`          | 错误回调，发生错误时调用                           |
+| `listen`            | `string[] / string` | 需要监听的事件类型，默认为 `message`               |
 
 ## 生成器的负载类型说明
 

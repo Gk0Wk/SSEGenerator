@@ -1,5 +1,11 @@
 # sse-generator
 
+## 0.0.5
+
+### Patch Changes
+
+- custom event listening
+
 ## 0.0.4
 
 ### Patch Changes

@@ -1,4 +1,4 @@
-import { SSE, SSEOptions as BaseSSEOptions, SSEHeaders, SSEvent } from 'sse.js';
+import { SSE, SSEOptions as BaseSSEOptions, SSEvent } from 'sse.js';
 
 export interface ISSEMessage {
   /**
@@ -19,6 +19,12 @@ export interface ISSEMessage {
    * Last event ID(if exists)
    */
   lastId: string | null;
+  /**
+   * 事件类型，默认是 message
+   *
+   * Event type, default is message
+   */
+  event: string;
 }
 
 export interface SSEProps {
@@ -45,7 +51,7 @@ export interface SSEProps {
    *
    * Request header, you can set custom request headers
    */
-  headers?: BaseSSEOptions['headers'];
+  headers?: Record<string, string>;
   /**
    * 请求方法, 在 data 不为空时默认为 POST，为空时默认为 GET
    *
@@ -76,6 +82,12 @@ export interface SSEProps {
    * Error callback, called when an error occurs
    */
   onError?: (error: string, xhr: XMLHttpRequest | null) => void;
+  /**
+   * 监听的事件类型，默认为 message，这是 event-stream 默认的事件类型
+   *
+   * The event type to listen to, default is message, which is the default event type of event-stream
+   */
+  listen?: string | string[];
 }
 
 /**
@@ -111,7 +123,7 @@ export interface SSEProps {
  */
 export async function* sse(props: SSEProps) {
   let { data } = props;
-  const headers = props.headers ?? ({} as SSEHeaders);
+  const headers = props.headers ?? {};
   if (data && typeof data !== 'string') {
     data = JSON.stringify(data);
     headers['Content-Type'] = 'application/json; charset=utf-8';
@@ -129,15 +141,21 @@ export async function* sse(props: SSEProps) {
   });
   const queue: ISSEMessage[] = [];
   let next: ((t: ISSEMessage) => void) | undefined;
-  source.onmessage = (e: SSEvent) => {
-    const payload = { data: e.data, id: e.id, lastId: e.id };
-    if (next) {
-      next(payload);
-      next = undefined;
-    } else {
-      queue.push(payload);
-    }
-  };
+  const eventTypes = Array.isArray(props.listen)
+    ? props.listen
+    : [props.listen ?? 'message'];
+  for (const event of eventTypes) {
+    // eslint-disable-next-line @typescript-eslint/no-loop-func
+    source.addEventListener(event, (e: SSEvent) => {
+      const payload = { data: e.data, id: e.id, lastId: e.id, event };
+      if (next) {
+        next(payload);
+        next = undefined;
+      } else {
+        queue.push(payload);
+      }
+    });
+  }
   source.onerror = (e: SSEvent) => props.onError?.(e.data, source.xhr);
   source.onopen = () => props.getXMLHTTPRequest?.(source.xhr!);
   try {
