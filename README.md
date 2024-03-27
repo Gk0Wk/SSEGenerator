@@ -137,6 +137,7 @@ The table below lists the main interface parameters, parsing, and usage of the `
 | `debug`             | `boolean`                | Whether to enable debug mode, printing information to the console |
 | `getXMLHTTPRequest` | `function`               | Called after connection, used to get `XMLHTTPRequest` object |
 | `onError`           | `function`               | Error callback, called when an error occurs       |
+| `listen`            | `string[]`               | List of events to listen to                      |
 
 ## Generator Payload Type Description
 
