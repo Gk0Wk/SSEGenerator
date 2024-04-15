@@ -140,20 +140,16 @@ export async function* sse(props: SSEProps) {
     headers,
   });
   const queue: ISSEMessage[] = [];
-  let next: ((t: ISSEMessage) => void) | undefined;
+  let next: (() => void) | undefined;
   const eventTypes = Array.isArray(props.listen)
     ? props.listen
     : [props.listen ?? 'message'];
   for (const event of eventTypes) {
     // eslint-disable-next-line @typescript-eslint/no-loop-func
     source.addEventListener(event, (e: SSEvent) => {
-      const payload = { data: e.data, id: e.id, lastId: e.id, event };
-      if (next) {
-        next(payload);
-        next = undefined;
-      } else {
-        queue.push(payload);
-      }
+      queue.push({ data: e.data, id: e.id, lastId: e.id, event });
+      next?.();
+      next = undefined;
     });
   }
   source.onerror = (e: SSEvent) => props.onError?.(e.data, source.xhr);
@@ -169,7 +165,7 @@ export async function* sse(props: SSEProps) {
         yield t;
       } else {
         // eslint-disable-next-line @typescript-eslint/no-loop-func
-        queue.push(await new Promise<ISSEMessage>(resolve => (next = resolve)));
+        await new Promise<void>(resolve => (next = resolve));
       }
     }
   } finally {

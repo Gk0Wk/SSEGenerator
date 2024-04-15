@@ -145,6 +145,7 @@ for await (const { event, data } of sse({ listen: ['content_block_delta', ...], 
 | `data`   | `string` | 消息内容(未解析)，一般可能是一个 JSON 字符串 |
 | `id`     | `string` | 事件 ID(若存在)                              |
 | `lastId` | `string` | 上一个事件 ID(若存在)                        |
+| `event`  | `string` | 事件名称                                     |
 
 ## 开发
 

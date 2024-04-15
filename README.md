@@ -31,7 +31,7 @@ Note that the `sse` function will be mounted on the global object `ssegenerator`
 ```html
 <script src="https://cdn.jsdelivr.net/npm/sse-generator/dist/umd/index.js"></script>
 <script>
-window.ssegenerator.sse({ ... })
+  window.ssegenerator.sse({ ... })
 </script>
 ```
 
@@ -53,14 +53,13 @@ async function test() {
     url: '/v1/chat/completions',
     data: {
       model: 'gpt-4-turbo-preview',
-      messages: [
-        { role: 'user', content: 'Hi!' },
-      ],
+      messages: [{ role: 'user', content: 'Hi!' }],
       headers: {
         Authorization: 'Bearer YOUR_API_KEY',
-      }
+      },
     },
-    onError: (error, xhr) => console.error(`Code: ${xhr?.status}, Error: ${error}`),
+    onError: (error, xhr) =>
+      console.error(`Code: ${xhr?.status}, Error: ${error}`),
   })) {
     console.log(JSON.parse(data).choices[0].delta.content);
   }
@@ -126,28 +125,29 @@ for await (const { event, data } of sse({ listen: ['content_block_delta', ...], 
 
 The table below lists the main interface parameters, parsing, and usage of the `sse` function.
 
-| Parameter           | Type                     | Description                                      |
-| ------------------- | ------------------------ | ------------------------------------------------ |
-| `baseURL`           | `string`                 | Base URL, all requests will be based on this URL |
-| `url`               | `string`                 | Request URL, if `baseURL` exists, this URL is relative |
-| `data`              | `any`                    | Request data, non-string will be JSON serialized |
-| `headers`           | `object`                 | Custom request headers                           |
-| `method`            | `string`                 | Request method, defaults to `GET`, `data` not null changes to `POST` |
-| `withCredentials`   | `boolean`                | Whether cross-origin requests should include credentials |
-| `debug`             | `boolean`                | Whether to enable debug mode, printing information to the console |
-| `getXMLHTTPRequest` | `function`               | Called after connection, used to get `XMLHTTPRequest` object |
-| `onError`           | `function`               | Error callback, called when an error occurs       |
-| `listen`            | `string[]`               | List of events to listen to                      |
+| Parameter           | Type                | Description                                                          |
+| ------------------- | ------------------- | -------------------------------------------------------------------- |
+| `baseURL`           | `string`            | Base URL, all requests will be based on this URL                     |
+| `url`               | `string`            | Request URL, if `baseURL` exists, this URL is relative               |
+| `data`              | `any`               | Request data, non-string will be JSON serialized                     |
+| `headers`           | `object`            | Custom request headers                                               |
+| `method`            | `string`            | Request method, defaults to `GET`, `data` not null changes to `POST` |
+| `withCredentials`   | `boolean`           | Whether cross-origin requests should include credentials             |
+| `debug`             | `boolean`           | Whether to enable debug mode, printing information to the console    |
+| `getXMLHTTPRequest` | `function`          | Called after connection, used to get `XMLHTTPRequest` object         |
+| `onError`           | `function`          | Error callback, called when an error occurs                          |
+| `listen`            | `string[] / string` | List of events to listen to                                          |
 
 ## Generator Payload Type Description
 
 The table below lists the payload types of the `sse` function generator and their corresponding parsing.
 
-| Payload Type    | Type                      | Description                                      |
-| --------------- | ------------------------- | ------------------------------------------------ |
-| `data`          | `string`                  | Unparsed message content, usually a JSON string  |
-| `id`            | `string`                  | Event ID (if present)                            |
-| `lastId`        | `string`                  | Previous event ID (if present)                   |
+| Payload Type | Type     | Description                                     |
+| ------------ | -------- | ----------------------------------------------- |
+| `data`       | `string` | Unparsed message content, usually a JSON string |
+| `id`         | `string` | Event ID (if present)                           |
+| `lastId`     | `string` | Previous event ID (if present)                  |
+| `event`      | `string` | Event name                                      |
 
 ## Development
 

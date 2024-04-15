@@ -1,5 +1,11 @@
 # sse-generator
 
+## 0.0.7
+
+### Patch Changes
+
+- Critical bug fixed: Severe event timing issues
+
 ## 0.0.6
 
 ### Patch Changes
