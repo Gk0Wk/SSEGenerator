@@ -46,20 +46,22 @@ import { sse } from 'sse-generator';
 
 // 使用 sse 函数
 async function test() {
-  for await (const { data } of sse({
-    baseURL: 'https://api.openai.com',
-    url: '/v1/chat/completions',
-    data: {
-      model: 'gpt-4-turbo-preview',
-      messages: [{ role: 'user', content: 'Hi!' }],
-      headers: {
-        Authorization: 'Bearer YOUR_API_KEY',
+  try {
+    for await (const { data } of sse({
+      baseURL: 'https://api.openai.com',
+      url: '/v1/chat/completions',
+      data: {
+        model: 'gpt-4-turbo-preview',
+        messages: [{ role: 'user', content: 'Hi!' }],
+        headers: {
+          Authorization: 'Bearer YOUR_API_KEY',
+        },
       },
-    },
-    onError: (error, xhr) =>
-      console.error(`Code: ${xhr?.status}, Error: ${error}`),
-  })) {
-    console.log(JSON.parse(data).choices[0].delta.content);
+    })) {
+      console.log(JSON.parse(data).choices[0].delta.content);
+    }
+  } catch (error) {
+    console.error(error);
   }
 }
 ```
@@ -133,7 +135,6 @@ for await (const { event, data } of sse({ listen: ['content_block_delta', ...], 
 | `withCredentials`   | `boolean`           | 跨域请求是否携带凭证                               |
 | `debug`             | `boolean`           | 是否开启调试模式，将信息打印至控制台               |
 | `getXMLHTTPRequest` | `function`          | 连接后调用，用于获取 `XMLHTTPRequest` 对象         |
-| `onError`           | `function`          | 错误回调，发生错误时调用                           |
 | `listen`            | `string[] / string` | 需要监听的事件类型，默认为 `message`               |
 
 ## 生成器的负载类型说明

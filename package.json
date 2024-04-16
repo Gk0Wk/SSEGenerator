@@ -1,6 +1,6 @@
 {
   "name": "sse-generator",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "types": "./dist/types/index.d.ts",
   "main": "./dist/lib/index.js",
   "module": "./dist/es/index.js",

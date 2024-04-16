@@ -48,20 +48,22 @@ import { sse } from 'sse-generator';
 
 // Use the sse function
 async function test() {
-  for await (const { data } of sse({
-    baseURL: 'https://api.openai.com',
-    url: '/v1/chat/completions',
-    data: {
-      model: 'gpt-4-turbo-preview',
-      messages: [{ role: 'user', content: 'Hi!' }],
-      headers: {
-        Authorization: 'Bearer YOUR_API_KEY',
+  try {
+    for await (const { data } of sse({
+      baseURL: 'https://api.openai.com',
+      url: '/v1/chat/completions',
+      data: {
+        model: 'gpt-4-turbo-preview',
+        messages: [{ role: 'user', content: 'Hi!' }],
+        headers: {
+          Authorization: 'Bearer YOUR_API_KEY',
+        },
       },
-    },
-    onError: (error, xhr) =>
-      console.error(`Code: ${xhr?.status}, Error: ${error}`),
-  })) {
-    console.log(JSON.parse(data).choices[0].delta.content);
+    })) {
+      console.log(JSON.parse(data).choices[0].delta.content);
+    }
+  } catch (error) {
+    console.error(error);
   }
 }
 ```
@@ -135,7 +137,6 @@ The table below lists the main interface parameters, parsing, and usage of the `
 | `withCredentials`   | `boolean`           | Whether cross-origin requests should include credentials             |
 | `debug`             | `boolean`           | Whether to enable debug mode, printing information to the console    |
 | `getXMLHTTPRequest` | `function`          | Called after connection, used to get `XMLHTTPRequest` object         |
-| `onError`           | `function`          | Error callback, called when an error occurs                          |
 | `listen`            | `string[] / string` | List of events to listen to                                          |
 
 ## Generator Payload Type Description

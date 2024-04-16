@@ -80,6 +80,8 @@ export interface SSEProps {
    * 错误回调，当发生错误时调用
    *
    * Error callback, called when an error occurs
+   *
+   * @deprecated
    */
   onError?: (error: string, xhr: XMLHttpRequest | null) => void;
   /**
@@ -90,33 +92,48 @@ export interface SSEProps {
   listen?: string | string[];
 }
 
+export class SSEError extends Error {
+  public readonly xhr: XMLHttpRequest | null;
+
+  public readonly event: SSEvent;
+
+  constructor(message: string, event: SSEvent, xhr: XMLHttpRequest | null) {
+    super(message);
+    this.xhr = xhr;
+    this.event = event;
+  }
+}
+
 /**
  * 发送 Server-Sent Events 请求，返回一个异步可迭代对象，可以用于接收服务器推送的消息
  * 可以获取到 XMLHTTPRequest 对象，用于获取额外信息
- * 可以使用 onError 回调捕获异常
+ * 当发生错误时，会抛出 SSEError 异常
  *
  * Send a Server-Sent Events request, return an asynchronous iterable object, which can be used to receive messages pushed by the server
  * You can get the XMLHTTPRequest object to get additional information
- * You can use the onError callback to catch exceptions
+ * When an error occurs, an SSEError exception will be thrown
  *
  * @example
  * ```ts
  * async function test() {
- *   for await (const { data } of sse({
- *     baseURL: 'https://api.openai.com',
- *     url: '/v1/chat/completions',
- *     data: {
- *       model: 'gpt-4-turbo-preview',
- *       messages: [
- *         { role: 'user', content: 'Hi!' },
- *       ],
- *       headers: {
- *         Authorization: 'Bearer YOUR_API_KEY',
- *       }
- *     },
- *     onError: (error, xhr) => console.error(`Code: ${xhr?.status}, Error: ${error}`),
- *   })) {
- *     console.log(JSON.parse(data).choices[0].delta.content);
+ *   try {
+ *     for await (const { data } of sse({
+ *       baseURL: 'https://api.openai.com',
+ *       url: '/v1/chat/completions',
+ *       data: {
+ *         model: 'gpt-4-turbo-preview',
+ *         messages: [
+ *           { role: 'user', content: 'Hi!' },
+ *         ],
+ *         headers: {
+ *           Authorization: 'Bearer YOUR_API_KEY',
+ *         }
+ *       },
+ *     })) {
+ *       console.log(JSON.parse(data).choices[0].delta.content);
+ *     }
+ *   } catch (e) {
+ *     console.error(e);
  *   }
  * }
  * ```
@@ -140,6 +157,7 @@ export async function* sse(props: SSEProps) {
     headers,
   });
   const queue: ISSEMessage[] = [];
+  let error: SSEvent | undefined;
   let next: (() => void) | undefined;
   const eventTypes = Array.isArray(props.listen)
     ? props.listen
@@ -152,7 +170,10 @@ export async function* sse(props: SSEProps) {
       next = undefined;
     });
   }
-  source.onerror = (e: SSEvent) => props.onError?.(e.data, source.xhr);
+  source.onerror = (e: SSEvent) => {
+    error = e;
+    props.onError?.(e.data, source.xhr);
+  };
   source.onopen = () => props.getXMLHTTPRequest?.(source.xhr!);
   try {
     source.stream();
@@ -173,6 +194,9 @@ export async function* sse(props: SSEProps) {
     if (source.readyState !== source.CLOSED) {
       source.close();
     }
+  }
+  if (error) {
+    throw new SSEError(error.data, error, source.xhr);
   }
   return source.xhr;
 }

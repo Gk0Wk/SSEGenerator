@@ -1,5 +1,11 @@
 # sse-generator
 
+## 0.0.8
+
+### Patch Changes
+
+- Make onError deprecated, and will throw SSEError
+
 ## 0.0.7
 
 ### Patch Changes
